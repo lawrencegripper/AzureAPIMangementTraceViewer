@@ -7,8 +7,8 @@
     <ProjectGuid>{AF98E5E1-0D86-4B48-91E0-F2BB4F80FA46}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>APIMTraceViewer</RootNamespace>
-    <AssemblyName>APIMTraceViewer</AssemblyName>
+    <RootNamespace>APIMTraceViewer.WPF</RootNamespace>
+    <AssemblyName>APIMTraceViewer.WPF</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
