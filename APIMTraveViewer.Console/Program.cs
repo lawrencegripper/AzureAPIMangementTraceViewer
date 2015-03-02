@@ -39,8 +39,6 @@ namespace APIMTraveViewer.CmdLine
 
                 IssueRequest(options.RequestUri.ToString(), options.OutputFolder).Wait();
             }
-            Console.ReadLine();
-
         }
 
         private static async Task IssueRequest(string requestUri, string folder)
