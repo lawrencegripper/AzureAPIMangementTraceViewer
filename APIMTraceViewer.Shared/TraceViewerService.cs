@@ -3,9 +3,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace APIMTraceViewer
+namespace APIMTraceViewer.Shared
 {
-    class EchoApiService
+    public class EchoApiService
     {
         const string traceHeaderReceive = "ocp-apim-trace-location";
         const string traceHeaderSend = "ocp-apim-trace";
