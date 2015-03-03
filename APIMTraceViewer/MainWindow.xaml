@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:APIMTraceViewer"
         mc:Ignorable="d"
-        Title="APIM Trace Viewer" Height="350" Width="525">
+        Title="APIM Trace Viewer" Height="450" Width="825">
     <Window.Resources>
         <SolidColorBrush x:Key="TextBox.Static.Border" Color="#FFABAdB3"/>
         <SolidColorBrush x:Key="TextBox.MouseOver.Border" Color="#FF7EB4EA"/>
@@ -55,7 +55,7 @@
     <Grid>
         <ScrollViewer >
             <StackPanel>
-                <TextBox Name="UrlTxtBx" Text="http://example.api.com"/>
+                <TextBox Name="UrlTxtBx" Text="https://yourtenent.azure-api.net/echo/resource?param1=sample&amp;subscription-key=yourSubscriptionKey"/>
                 <Button Name="StartBtn" Content="Go" Click="Button_Click" />
                 <TextBlock Text="Headers" FontWeight="Bold"/>
                 <TextBox TextWrapping="Wrap" IsReadOnly="True" Name="HeadersTxt" Style="{DynamicResource TextBoxStyleNoBorder}"/>
