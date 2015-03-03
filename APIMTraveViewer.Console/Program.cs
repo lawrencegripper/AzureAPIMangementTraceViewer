@@ -12,30 +12,9 @@ namespace APIMTraveViewer.CmdLine
 {
     class Program
     {
-        class Options
-        {
-
-            [ParserState]
-            public IParserState LastParserState { get; set; }
-
-
-            [Option('u', "url", Required = false, HelpText = "Input files to be processed.")]
-            public string RequestUri { get; set; }
-
-            [Option('f', "file", Required = false, HelpText = "Output folder where traces will be saved.")]
-            public string OutputFolder { get; set; }
-
-            [HelpOption]
-            public string GetUsage()
-            {
-                return HelpText.AutoBuild(this);
-            }
-
-        }
-
         static void Main(string[] args)
         {
-            var options = new Options();
+            var options = new ArgOptions();
             if (Parser.Default.ParseArguments(args, options))
             {
 
@@ -44,8 +23,6 @@ namespace APIMTraveViewer.CmdLine
 
                 IssueRequest(options.RequestUri, options.OutputFolder).Wait();
             }
-
-            Console.ReadLine();
         }
 
         private static async Task IssueRequest(string requestUri, string folder)
@@ -55,34 +32,42 @@ namespace APIMTraveViewer.CmdLine
             EchoApiService echoTester = new EchoApiService();
             var result = await echoTester.GetRequestWithTrace(requestUri);
 
-            var trace = string.Format("trace-{0:yyyy-MM-dd_hh-mm-ss-tt}.json", DateTime.Now);
-            var traceFilePath = Path.Combine(folder, trace);
+            await WriteTraceToFile(folder, result);
+            await WriteRequestDetailsToFile(requestUri, folder, result);
+        }
 
-            using (StreamWriter outputFile = new StreamWriter(traceFilePath))
-            {
-                //Could be MVVM but feels like overkill given the simplicity.
-
-                //Show errors, if any
-                if (result.HasError)
-                {
-                    await outputFile.WriteLineAsync(string.Format("An error occured '{0}' Exception Details: '{1}'", result.ErrorDetails.Message, result.ErrorDetails.ToString()));
-                }
-
-                await outputFile.WriteAsync(result.TraceString);
-            }
-
+        private static async Task WriteRequestDetailsToFile(string requestUri, string folder, TraceResponse result)
+        {
             var request = string.Format("request-{0:yyyy-MM-dd_hh-mm-ss-tt}.txt", DateTime.Now);
             var requestFilePath = Path.Combine(folder, request);
             using (StreamWriter outputFile = new StreamWriter(requestFilePath))
             {
                 await outputFile.WriteLineAsync("-----------RequestUrl-----------");
-                await outputFile.WriteAsync(requestUri);
+                await outputFile.WriteLineAsync(requestUri);
                 await outputFile.WriteLineAsync("-----------Body-----------");
-                await outputFile.WriteAsync(result.BodyContent);
+                await outputFile.WriteLineAsync(result.BodyContent);
                 await outputFile.WriteLineAsync("-----------Headers-----------");
-                await outputFile.WriteAsync(result.ResponseMessage.Headers.ToString());
+                await outputFile.WriteLineAsync(result.ResponseMessage.Headers.ToString());
             }
         }
 
+        private static async Task WriteTraceToFile(string folder, TraceResponse result)
+        {
+            var trace = string.Format("trace-{0:yyyy-MM-dd_hh-mm-ss-tt}.json", DateTime.Now);
+            var traceFilePath = Path.Combine(folder, trace);
+
+            using (StreamWriter outputFile = new StreamWriter(traceFilePath))
+            {
+                //Show errors, if any
+                if (result.HasError)
+                {
+                    var error = string.Format("An error occured '{0}' Exception Details: '{1}'", result.ErrorDetails.Message, result.ErrorDetails.ToString());
+                    Console.WriteLine(error);
+                    await outputFile.WriteLineAsync(error);
+                }
+
+                await outputFile.WriteLineAsync(result.TraceString);
+            }
+        }
     }
 }
