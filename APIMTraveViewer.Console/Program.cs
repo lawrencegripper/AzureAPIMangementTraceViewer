@@ -19,21 +19,23 @@ namespace APIMTraveViewer.CmdLine
             {
 
                 Console.WriteLine("Request to Trace: " + options.RequestUri);
+                Console.WriteLine("With subscription key: " + options.SubscriptionKey);
                 Console.WriteLine("Output folder for result: " + options.OutputFolder);
 
-                IssueRequest(options.RequestUri, options.OutputFolder).Wait();
+                IssueRequest(options.RequestUri, options.SubscriptionKey, options.OutputFolder).Wait();
             }
         }
 
-        private static async Task IssueRequest(string requestUri, string folder)
+        private static async Task IssueRequest(string requestUri, string subKey, string folder)
         {
 
             //Issue a request and get trace
-            EchoApiService echoTester = new EchoApiService();
-            var result = await echoTester.GetRequestWithTrace(requestUri);
-
-            await WriteTraceToFile(folder, result);
-            await WriteRequestDetailsToFile(requestUri, folder, result);
+            using (TraceViewerService echoTester = new TraceViewerService(subKey))
+            {
+                var result = await echoTester.GetRequestWithTrace(requestUri);
+                await WriteTraceToFile(folder, result);
+                await WriteRequestDetailsToFile(requestUri, folder, result);
+            }
         }
 
         private static async Task WriteRequestDetailsToFile(string requestUri, string folder, TraceResponse result)

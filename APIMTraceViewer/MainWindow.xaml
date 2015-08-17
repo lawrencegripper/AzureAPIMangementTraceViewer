@@ -4,9 +4,40 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:APIMTraceViewer"
+         xmlns:json ="clr-namespace:Newtonsoft.Json;assembly=Newtonsoft.Json"
+    xmlns:jlinq ="clr-namespace:Newtonsoft.Json.Linq;assembly=Newtonsoft.Json"
         mc:Ignorable="d"
         Title="APIM Trace Viewer" Height="450" Width="825">
     <Window.Resources>
+        <local:MethodToValueConverter x:Key="MethodToValueConverter"/>
+        <HierarchicalDataTemplate DataType="{x:Type jlinq:JArray}" ItemsSource="{Binding Converter={StaticResource MethodToValueConverter}, ConverterParameter='Children'}">
+            <TextBlock Text="Array">
+            </TextBlock>
+        </HierarchicalDataTemplate>
+        <HierarchicalDataTemplate DataType="{x:Type jlinq:JProperty}" ItemsSource="{Binding Converter={StaticResource MethodToValueConverter}, ConverterParameter='Children'}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Property name: "/>
+                <TextBlock Text="{Binding Path=Name, Mode=OneWay}"/>
+            </StackPanel>
+        </HierarchicalDataTemplate>
+        <HierarchicalDataTemplate DataType="{x:Type jlinq:JObject}" ItemsSource="{Binding Converter={StaticResource MethodToValueConverter}, ConverterParameter='Children'}">
+            <TextBlock Text="Object">
+            </TextBlock>
+        </HierarchicalDataTemplate>
+        <HierarchicalDataTemplate DataType="{x:Type jlinq:JConstructor}" ItemsSource="{Binding Converter={StaticResource MethodToValueConverter}, ConverterParameter='Children'}">
+            <TextBlock Text="Constructor">
+            </TextBlock>
+        </HierarchicalDataTemplate>
+        <HierarchicalDataTemplate DataType="{x:Type jlinq:JRaw}" ItemsSource="{Binding Converter={StaticResource MethodToValueConverter}, ConverterParameter='Children'}">
+            <TextBlock Text="Raw">
+            </TextBlock>
+        </HierarchicalDataTemplate>
+        <DataTemplate DataType="{x:Type jlinq:JValue}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Value: "/>
+                <TextBox Text="{Binding Path=Value, Mode=TwoWay}"/>
+            </StackPanel>
+        </DataTemplate>
         <SolidColorBrush x:Key="TextBox.Static.Border" Color="#FFABAdB3"/>
         <SolidColorBrush x:Key="TextBox.MouseOver.Border" Color="#FF7EB4EA"/>
         <SolidColorBrush x:Key="TextBox.Focus.Border" Color="#FF569DE5"/>
@@ -55,13 +86,22 @@
     <Grid>
         <ScrollViewer >
             <StackPanel>
-                <TextBox Name="UrlTxtBx" Text="https://yourtenent.azure-api.net/echo/resource?param1=sample&amp;subscription-key=yourSubscriptionKey"/>
+                <TextBox Name="UrlTxtBx" Text="https://yourtenent.azure-api.net/echo/resource?param1=sample"/>
+                <TextBox Name="SubscriptionTxtBx" Text="subscriptionKeyHere"/>
                 <Button Name="StartBtn" Content="Go" Click="Button_Click" />
-                <TextBlock Text="Headers" FontWeight="Bold"/>
+                <TextBlock Text="Response Trace from API Management (treeview)"/>
+                <TreeView Name="TraceTreeView">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="{x:Type TreeViewItem}">
+                            <Setter Property="IsExpanded" Value="False" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                </TreeView>
+                <TextBlock Text="Response Headers" FontWeight="Bold"/>
                 <TextBox TextWrapping="Wrap" IsReadOnly="True" Name="HeadersTxt" Style="{DynamicResource TextBoxStyleNoBorder}"/>
-                <TextBlock Text="Body" FontWeight="Bold"/>
+                <TextBlock Text="Response Body" FontWeight="Bold"/>
                 <TextBox TextWrapping="Wrap" IsReadOnly="True" Name="BodyTxt" Style="{DynamicResource TextBoxStyleNoBorder}"/>
-                <TextBlock Text="TraceJson" FontWeight="Bold"/>
+                <TextBlock Text="Response Trace From API Management (json)" FontWeight="Bold"/>
                 <TextBox TextWrapping="Wrap" IsReadOnly="True" Name="TraceTxt" Style="{DynamicResource TextBoxStyleNoBorder}"/>
             </StackPanel>
         </ScrollViewer>

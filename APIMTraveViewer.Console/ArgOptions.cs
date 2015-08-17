@@ -12,10 +12,13 @@ namespace APIMTraveViewer.CmdLine
     {
         [ParserState]
         public IParserState LastParserState { get; set; }
-        [Option('u', "url", Required = false, HelpText = "Url of the request to trace.")]
+        [Option('u', "url", Required = true, HelpText = "Url of the request to trace.")]
         public string RequestUri { get; set; }
 
-        [Option('f', "file", Required = false, HelpText = "Output folder where traces will be saved.")]
+        [Option('s', "subscriptionKey", Required = true, HelpText = "Output folder where traces will be saved.")]
+        public string SubscriptionKey { get; set; }
+
+        [Option('f', "file", Required = true, HelpText = "Output folder where traces will be saved.")]
         public string OutputFolder { get; set; }
 
         [HelpOption]

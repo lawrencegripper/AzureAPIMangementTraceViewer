@@ -23,12 +23,6 @@ namespace APIMTraceViewer.Shared
             return outputUri;
         }
 
-
-        public static bool IsAPIMServer(HttpResponseMessage result)
-        {
-            return result.Headers.Any(x => x.Key == "Server" && x.Value.FirstOrDefault() == apiManagementServerHeader);
-        }
-
         /// <summary>
         /// Bit of a hack to format the json nicely onto multiple lines. 
         /// </summary>

@@ -1,4 +1,5 @@
 ﻿using APIMTraceViewer.Shared;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -32,23 +33,33 @@ namespace APIMTraceViewer
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             //Could be MVVM but feels like overkill given the simplicity.
-            EchoApiService echoTester = new EchoApiService();
-
-            //Issue a request and get trace, disabling button to avoid concurrency. 
-            StartBtn.IsEnabled = false;
-            var result = await echoTester.GetRequestWithTrace(UrlTxtBx.Text);
-            StartBtn.IsEnabled = true;
-
-            //Show errors, if any
-            if (result.HasError)
+            using (TraceViewerService echoTester = new TraceViewerService(SubscriptionTxtBx.Text))
             {
-                MessageBox.Show(string.Format("An error occured '{0}' Exception Details: '{1}'", result.ErrorDetails.Message, result.ErrorDetails.ToString()));
-            }
+                //Issue a request and get trace, disabling button to avoid concurrency. 
+                StartBtn.IsEnabled = false;
+                var result = await echoTester.GetRequestWithTrace(UrlTxtBx.Text);
+                StartBtn.IsEnabled = true;
 
-            //Update the UI  
-            TraceTxt.Text = result.TraceString;
-            HeadersTxt.Text = result.ResponseMessage.Headers.ToString();
-            BodyTxt.Text = result.BodyContent;
+                //Show errors, if any
+                if (result.HasError)
+                {
+                    MessageBox.Show(string.Format("An error occured '{0}' Exception Details: '{1}'", result.ErrorDetails.Message, result.ErrorDetails.ToString()));
+                }
+
+                var token = JToken.Parse(result.TraceString);
+
+                var children = new List<JToken>();
+                if (token != null)
+                {
+                    children.Add(token);
+                }
+                TraceTreeView.ItemsSource = children;
+
+                //Update the UI  
+                TraceTxt.Text = result.TraceString;
+                HeadersTxt.Text = result.ResponseMessage.Headers.ToString();
+                BodyTxt.Text = result.BodyContent;
+            }
         }
     }
 }

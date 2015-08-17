@@ -5,16 +5,36 @@ using System.Threading.Tasks;
 
 namespace APIMTraceViewer.Shared
 {
-    public class EchoApiService
+    public class TraceViewerService : IDisposable
     {
         const string traceHeaderReceive = "ocp-apim-trace-location";
         const string traceHeaderSend = "ocp-apim-trace";
-        HttpClient client;
+        const string traceHeaderSubKey = "ocp-apim-subscription-key";
+        readonly HttpClient client;
 
-        public EchoApiService()
+        public TraceViewerService(string subscriptionKeyForTrace)
         {
+            if (subscriptionKeyForTrace == null)
+            {
+                throw new ApplicationException("Subscription Key is required");
+            }
             client = new HttpClient();
             client.DefaultRequestHeaders.Add(traceHeaderSend, "true");
+            client.DefaultRequestHeaders.Add(traceHeaderSubKey, subscriptionKeyForTrace);
+        }
+
+        /// <summary>
+        /// This initiates a call to the API with the trace header added. 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns>Response from the API, should contain trace header</returns>
+        private async Task<HttpResponseMessage> GetApiResponse(Uri traceUri)
+        {
+            var result = await client.GetAsync(traceUri);
+
+            //Note not checking for success code as want to view trace on failure too.
+
+            return result;
         }
 
         /// <summary>
@@ -42,24 +62,6 @@ namespace APIMTraceViewer.Shared
         }
 
 
-        /// <summary>
-        /// This initiates a call to the API with the trace header added. 
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns>Response from the API, should contain trace header</returns>
-        private async Task<HttpResponseMessage> GetApiResponse(Uri traceUri)
-        {
-            var result = await client.GetAsync(traceUri);
-
-            //Note not checking for success code as want to view trace on failure too. 
-
-            if (!Helpers.IsAPIMServer(result))
-            {
-                throw new InvalidOperationException("Service is not being hosted by APIM");
-            }
-
-            return result;
-        }
 
         /// <summary>
         /// Fetches the json trace from the request. 
@@ -68,14 +70,13 @@ namespace APIMTraceViewer.Shared
         /// <returns>content of the trace</returns>
         private async Task<string> GetTrace(HttpResponseMessage message)
         {
-            var url = string.Empty;
 
-            if (!message.Headers.Any(x => x.Key == traceHeaderReceive))
+            if (!message.Headers.Any(x => x.Key.ToLower() == traceHeaderReceive))
             {
                 throw new InvalidOperationException("APIM didn't return a tracking header");
             }
 
-            var traceUrlHeader = message.Headers.Where(x => x.Key == traceHeaderReceive).FirstOrDefault();
+            var traceUrlHeader = message.Headers.FirstOrDefault(x => x.Key.ToLower() == traceHeaderReceive);
 
             Uri traceUri = Helpers.UriGuard(traceUrlHeader.Value.First());
 
@@ -84,7 +85,9 @@ namespace APIMTraceViewer.Shared
             return Helpers.FormatJsonNicely(unformattedResponse);
         }
 
-
-
+        public void Dispose()
+        {
+            client.Dispose();
+        }
     }
 }
