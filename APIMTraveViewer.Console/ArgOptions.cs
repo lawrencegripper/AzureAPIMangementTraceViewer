@@ -18,7 +18,7 @@ namespace APIMTraveViewer.CmdLine
         [Option('s', "subscriptionKey", Required = true, HelpText = "Output folder where traces will be saved.")]
         public string SubscriptionKey { get; set; }
 
-        [Option('f', "file", Required = true, HelpText = "Output folder where traces will be saved.")]
+        [Option('f', "folder", Required = true, HelpText = "Output folder where traces will be saved.")]
         public string OutputFolder { get; set; }
 
         [HelpOption]
@@ -26,7 +26,7 @@ namespace APIMTraveViewer.CmdLine
         {
             foreach (var error in this.LastParserState.Errors)
             {
-                Console.WriteLine("Error on input {0} IsRequired {1} IsInvalidFormat {2}", error.BadOption.LongName, error.ViolatesRequired, error.ViolatesFormat);
+                Console.WriteLine("Error on input '{0}' IsRequired:{1} IsInvalidFormat:{2}", error.BadOption.LongName, error.ViolatesRequired, error.ViolatesFormat);
             }
             Console.WriteLine("Press any key to exit");
             Console.ReadLine();
